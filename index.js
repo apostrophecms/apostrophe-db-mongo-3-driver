@@ -1,6 +1,6 @@
-var mongo = require('mongodb');
-var _ = require('lodash');
-var qs = require('qs');
+const mongo = require('mongodb');
+const _ = require('lodash');
+const qs = require('qs');
 
 module.exports = {
   improve: 'apostrophe-db',
@@ -9,7 +9,7 @@ module.exports = {
   },
   construct: function(self, options) {
     self.connectToMongo = function(callback) {
-      var dbName = options.name || self.apos.shortName;
+      const dbName = options.name || self.apos.shortName;
       if (self.options.client) {
         self.client = self.options.client;
         self.apos.db = self.client.db(dbName);
@@ -29,14 +29,14 @@ module.exports = {
         self.apos.db = self.options.db;
         return callback(null);
       }
-      var Logger;
+      let Logger = null;
       if (process.env.APOS_MONGODB_LOG_LEVEL) {
         Logger = require('mongodb').Logger;
         // Set debug level
         Logger.setLevel(process.env.APOS_MONGODB_LOG_LEVEL);
       }
-      var uri = 'mongodb://';
-      var connectOptions = _.assign({
+      let uri = 'mongodb://';
+      const connectOptions = _.assign({
         autoReconnect: true,
         // retry forever
         reconnectTries: Number.MAX_VALUE,
@@ -71,7 +71,7 @@ module.exports = {
           return callback(err);
         }
         self.client = client;
-        var parsed = require('url').parse(uri, false, true);
+        const parsed = require('url').parse(uri, false, true);
         if (parsed.pathname && (parsed.pathname.length > 1)) {
           // Consistent with our 2.x behavior, we want to use whatever
           // the default database of the URI is
@@ -113,7 +113,7 @@ module.exports = {
     };
 
     self.bcPatch = function() {
-      var superFind = mongo.Collection.prototype.find;
+      const superFind = mongo.Collection.prototype.find;
       // Introduce a findWithProjection method supporting the old
       // 2.x (and prior) calling convention. This method supports
       // all of the previously valid ways of invoking `find()` in 2.x,
@@ -126,7 +126,7 @@ module.exports = {
         if ((typeof projection) !== 'object') {
           return superFind.apply(this, arguments);
         }
-        var args = Array.prototype.slice.call(arguments, 0);
+        const args = Array.prototype.slice.call(arguments, 0);
         args[1] = {
           projection: args[1]
         };
@@ -134,7 +134,7 @@ module.exports = {
       };
 
       mongo.Collection.prototype.aposVerifyPatched = true;
-      
+
       // For bc, bring back the classic `nextObject` method name as a
       // simple alias for the `next` method.
       mongo.Cursor.prototype.nextObject = mongo.Cursor.prototype.next;

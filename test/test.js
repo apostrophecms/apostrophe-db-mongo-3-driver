@@ -1,25 +1,24 @@
-var assert = require('assert');
-var fs = require('fs');
-var _ = require('lodash');
+const assert = require('assert');
+const _ = require('lodash');
 
 describe('apostrophe-db-mongo-3-driver', function() {
 
-  var apos;
-  
+  let apos;
+
   this.timeout(5000);
-  
+
   after(function(done) {
     require('apostrophe/test-lib/util').destroy(apos, done);
   });
 
-  //////
+  /// ///
   // EXISTENCE
-  //////
+  /// ///
 
   it('should be a property of the apos object', function(done) {
     apos = require('apostrophe')({
       testModule: true,
-      
+
       modules: {
         'apostrophe-db-mongo-3-driver': {},
         'apostrophe-pages': {
@@ -42,7 +41,7 @@ describe('apostrophe-db-mongo-3-driver', function() {
             {
               slug: '/about',
               type: 'testPage',
-              slug: 'About',
+              title: 'About',
               published: true
             }
           ],
@@ -56,12 +55,13 @@ describe('apostrophe-db-mongo-3-driver', function() {
               label: 'Test Page'
             }
           ]
-        },
+        }
       },
       afterInit: function(callback) {
         return callback(null);
       },
       afterListen: function(err) {
+        assert(!err);
         done();
       }
     });
@@ -87,7 +87,7 @@ describe('apostrophe-db-mongo-3-driver', function() {
       done();
     });
   });
-  
+
   it('again, with promises', function() {
     return apos.docs.db.findWithProjection({}, { slug: 1 }).toArray().then(function(docs) {
       assert(docs);
@@ -125,7 +125,7 @@ describe('apostrophe-db-mongo-3-driver', function() {
       done();
     });
   });
-  
+
   it('again, with promises', function() {
     return apos.docs.db.findWithProjection({}).toArray().then(function(docs) {
       assert(docs);
