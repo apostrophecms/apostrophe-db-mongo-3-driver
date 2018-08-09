@@ -9,7 +9,6 @@ module.exports = {
   },
   construct: function(self, options) {
     self.connectToMongo = function(callback) {
-      console.log('connecting...');
       var dbName = options.name || self.apos.shortName;
       if (self.options.client) {
         self.client = self.options.client;
@@ -125,14 +124,16 @@ module.exports = {
       // into the new options argument.
       mongo.Collection.prototype.findWithProjection = function(query, projection) {
         if ((typeof projection) !== 'object') {
-          return superFind.apply(arguments);
+          return superFind.apply(this, arguments);
         }
-        var args = Array.slice.call(arguments, 0);
+        var args = Array.prototype.slice.call(arguments, 0);
         args[1] = {
           projection: args[1]
         };
-        return superFind.apply(args);
+        return superFind.apply(this, args);
       };
+
+      mongo.Collection.prototype.aposVerifyPatched = true;
       
       // For bc, bring back the classic `nextObject` method name as a
       // simple alias for the `next` method.

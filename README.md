@@ -1,7 +1,5 @@
 # apostrophe-db-mongo-3-driver
 
-## WORK IN PROGRESS — NOT READY FOR USE.
-
 ## The problem to be solved
 
 You have Apostrophe 2.x. You want to use the new [MongoDB 3.x Node.js drivers](http://mongodb.github.io/node-mongodb-native/3.1) to access newer features of MongoDB 3.6 or above, but by default Apostrophe uses the MongoDB 2.x Node.js drivers. This module changes that.
