@@ -67,13 +67,13 @@ module.exports = {
       }
 
       // If a comma separated host list appears, or a mongodb+srv seedlist URI,
-      // it's a replica set or sharded cluster. In either case, the autoReconnect 
+      // it's a replica set or sharded cluster. In either case, the autoReconnect
       // eature is undesirable and will actually cause problems, per the MongoDB
       // team:
       //
       // https://github.com/apostrophecms/apostrophe/issues/1508
 
-      if (uri.match(/\/\/.*?\,.*?\//) || uri.match(/^mongodb\+srv/)) {
+      if (uri.match(/\/\/[^/]+,/) || uri.match(/^mongodb\+srv/)) {
         delete baseOptions.autoReconnect;
         delete baseOptions.reconnectTries;
         delete baseOptions.reconnectInterval;
