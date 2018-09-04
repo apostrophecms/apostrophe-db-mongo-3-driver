@@ -73,14 +73,13 @@ module.exports = {
       //
       // https://github.com/apostrophecms/apostrophe/issues/1508
 
-      if (uri.match(/\/\/[^/]+,/) || uri.match(/^mongodb\+srv/)) {
+      if (multiple(uri)) {
         delete baseOptions.autoReconnect;
         delete baseOptions.reconnectTries;
         delete baseOptions.reconnectInterval;
       }
 
       const connectOptions = _.assign(baseOptions, self.options.connect || {});
-
       return mongo.MongoClient.connect(uri, connectOptions, function (err, client) {
         if (err) {
           self.apos.utils.error('ERROR: There was an issue connecting to the database. Is it running?');
@@ -103,6 +102,22 @@ module.exports = {
       function e(s) {
         return encodeURIComponent(s);
       }
+
+      function multiple(uri) {
+        // "Why don't we use a URL parser?" Because MongoDB has historically
+        // supported some URL structures that might confuse one, like more than
+        // one : in the host field.
+        if (uri.match(/^mongodb\+srv/)) {
+          return true;
+        }
+        const matches = uri.match(/\/\/([^\/]+)/);
+        if (!matches) {
+          return false;
+        }
+        const host = decodeURIComponent(matches[1]);
+        return !!host.match(/,/);
+      }
+
     };
 
     // Invoked by `callAll` when `apos.destroy` is called.
