@@ -110,7 +110,7 @@ module.exports = {
         if (uri.match(/^mongodb\+srv/)) {
           return true;
         }
-        const matches = uri.match(/\/\/([^\/]+)/);
+        const matches = uri.match(/\/\/([^/]+)/);
         if (!matches) {
           return false;
         }
