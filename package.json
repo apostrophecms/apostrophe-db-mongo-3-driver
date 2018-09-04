@@ -1,6 +1,6 @@
 {
   "name": "apostrophe-db-mongo-3-driver",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Extends ApostropheCMS to use the 3.x version of the MongoDB native driver, for better compatibility with MongoDB 3.6, 4.0, etc.",
   "main": "index.js",
   "scripts": {
