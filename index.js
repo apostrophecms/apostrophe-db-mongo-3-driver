@@ -36,13 +36,13 @@ module.exports = {
         Logger.setLevel(process.env.APOS_MONGODB_LOG_LEVEL);
       }
       let uri = 'mongodb://';
-      const connectOptions = _.assign({
+      const baseOptions = {
         autoReconnect: true,
         // retry forever
         reconnectTries: Number.MAX_VALUE,
         reconnectInterval: 1000,
         useNewUrlParser: true
-      }, self.options.connect || {});
+      };
       if (process.env.APOS_MONGODB_URI) {
         uri = process.env.APOS_MONGODB_URI;
       } else if (options.uri) {
@@ -65,6 +65,21 @@ module.exports = {
           uri += '?' + qs.stringify(options.params);
         }
       }
+
+      // If a comma separated host list appears, or a mongodb+srv seedlist URI,
+      // it's a replica set or sharded cluster. In either case, the autoReconnect
+      // feature is undesirable and will actually cause problems, per the MongoDB
+      // team:
+      //
+      // https://github.com/apostrophecms/apostrophe/issues/1508
+
+      if (multiple(uri)) {
+        delete baseOptions.autoReconnect;
+        delete baseOptions.reconnectTries;
+        delete baseOptions.reconnectInterval;
+      }
+
+      const connectOptions = _.assign(baseOptions, self.options.connect || {});
       return mongo.MongoClient.connect(uri, connectOptions, function (err, client) {
         if (err) {
           self.apos.utils.error('ERROR: There was an issue connecting to the database. Is it running?');
@@ -87,6 +102,22 @@ module.exports = {
       function e(s) {
         return encodeURIComponent(s);
       }
+
+      function multiple(uri) {
+        // "Why don't we use a URL parser?" Because MongoDB has historically
+        // supported some URL structures that might confuse one, like more than
+        // one : in the host field.
+        if (uri.match(/^mongodb\+srv/)) {
+          return true;
+        }
+        const matches = uri.match(/\/\/([^\/]+)/);
+        if (!matches) {
+          return false;
+        }
+        const host = decodeURIComponent(matches[1]);
+        return !!host.match(/,/);
+      }
+
     };
 
     // Invoked by `callAll` when `apos.destroy` is called.
