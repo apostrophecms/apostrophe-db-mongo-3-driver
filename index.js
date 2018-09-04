@@ -36,13 +36,13 @@ module.exports = {
         Logger.setLevel(process.env.APOS_MONGODB_LOG_LEVEL);
       }
       let uri = 'mongodb://';
-      const connectOptions = _.assign({
+      const baseOptions = {
         autoReconnect: true,
         // retry forever
         reconnectTries: Number.MAX_VALUE,
         reconnectInterval: 1000,
         useNewUrlParser: true
-      }, self.options.connect || {});
+      };
       if (process.env.APOS_MONGODB_URI) {
         uri = process.env.APOS_MONGODB_URI;
       } else if (options.uri) {
@@ -65,6 +65,22 @@ module.exports = {
           uri += '?' + qs.stringify(options.params);
         }
       }
+
+      // If a comma separated host list appears, or a mongodb+srv seedlist URI,
+      // it's a replica set or sharded cluster. In either case, the autoReconnect 
+      // eature is undesirable and will actually cause problems, per the MongoDB
+      // team:
+      //
+      // https://github.com/apostrophecms/apostrophe/issues/1508
+
+      if (uri.match(/\/\/.*?\,.*?\//) || uri.match(/^mongodb\+srv/)) {
+        delete baseOptions.autoReconnect;
+        delete baseOptions.reconnectTries;
+        delete baseOptions.reconnectInterval;
+      }
+
+      const connectOptions = _.assign(baseOptions, self.options.connect || {});
+
       return mongo.MongoClient.connect(uri, connectOptions, function (err, client) {
         if (err) {
           self.apos.utils.error('ERROR: There was an issue connecting to the database. Is it running?');
