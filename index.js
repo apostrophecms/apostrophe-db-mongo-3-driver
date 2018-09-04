@@ -68,7 +68,7 @@ module.exports = {
 
       // If a comma separated host list appears, or a mongodb+srv seedlist URI,
       // it's a replica set or sharded cluster. In either case, the autoReconnect
-      // eature is undesirable and will actually cause problems, per the MongoDB
+      // feature is undesirable and will actually cause problems, per the MongoDB
       // team:
       //
       // https://github.com/apostrophecms/apostrophe/issues/1508
